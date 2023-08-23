@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control LED</title>
+</head>
+<body>
+    <h1>Control LED</h1>
+    <form>
+        <label for="choice">Choose LED state:</label>
+        <select name="choice" id="choice">
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </select>
+    </form>
+    
+    <script>
+        function sendChoice(choice) {
+            fetch('{% url "control_led" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'choice=' + encodeURIComponent(choice)
+            })
+        }
+
+        // Attach the event listener after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            var choiceDropdown = document.getElementById('choice');
+            choiceDropdown.addEventListener('change', function() {
+                sendChoice(choiceDropdown.value);
+            });
+        });
+    </script>
+</body>
+</html>
