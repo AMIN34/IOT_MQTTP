@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import ControlLEDView
 
 urlpatterns = [
-    path('', views.control_led, name="control_led")
+    path('', ControlLEDView.as_view(), name='control_led'),
 ]

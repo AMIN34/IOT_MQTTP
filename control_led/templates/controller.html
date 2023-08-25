@@ -5,33 +5,44 @@
 </head>
 <body>
     <h1>Control LED</h1>
-    <form>
-        <label for="choice">Choose LED state:</label>
-        <select name="choice" id="choice">
-            <option value="0">OFF</option>
-            <option value="1">ON</option>
-        </select>
-    </form>
+    
+    <h2>LED Clients:</h2>
+    <ul>
+        {% for led_client in led_clients %}
+            <li>
+                {{ led_client.led_name }} ({{ led_client.client_id }}) -
+                <select class="led-choice" data-client-id="{{ led_client.id }}">
+                    <option value="0" {% if not led_client.led_state %}selected{% endif %}>OFF</option>
+                    <option value="1" {% if led_client.led_state %}selected{% endif %}>ON</option>
+                </select>
+            </li>
+        {% endfor %}
+    </ul>
     
     <script>
-        function sendChoice(choice) {
+        document.addEventListener('DOMContentLoaded', function() {
+            var choiceDropdowns = document.querySelectorAll('.led-choice');
+            
+            choiceDropdowns.forEach(function(dropdown) {
+                dropdown.addEventListener('change', function() {
+                    var choice = dropdown.value;
+                    var clientId = dropdown.getAttribute('data-client-id');
+                    
+                    sendChoice(clientId, choice);
+                });
+            });
+        });
+        
+        function sendChoice(clientId, choice) {
             fetch('{% url "control_led" %}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
-                body: 'choice=' + encodeURIComponent(choice)
-            })
-        }
-
-        // Attach the event listener after the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            var choiceDropdown = document.getElementById('choice');
-            choiceDropdown.addEventListener('change', function() {
-                sendChoice(choiceDropdown.value);
+                body: 'led_client_id=' + encodeURIComponent(clientId) + '&choice=' + encodeURIComponent(choice)
             });
-        });
+        }
     </script>
 </body>
 </html>
